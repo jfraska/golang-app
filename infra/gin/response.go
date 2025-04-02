@@ -1,7 +1,7 @@
 package infragin
 
 import (
-	"golang-app/infra/response"
+	"github.com/jfraska/golang-app/infra/response"
 
 	"github.com/gin-gonic/gin"
 )
@@ -14,7 +14,7 @@ type Error struct {
 type Response struct {
 	HttpCode int         `json:"-"`
 	Success  bool        `json:"success"`
-	Message  string      `json:"message"`
+	Message  string      `json:"message,omitempty"`
 	Data     interface{} `json:"data,omitempty"`
 	Meta     interface{} `json:"meta,omitempty"`
 	Error    *Error      `json:"error,omitempty"`

@@ -1,13 +1,11 @@
-package template
+package media
 
 import (
 	"net/http"
 
+	"github.com/gin-gonic/gin"
 	infragin "github.com/jfraska/golang-app/infra/gin"
 	"github.com/jfraska/golang-app/infra/response"
-	pkg "github.com/jfraska/golang-app/pkg/utils"
-
-	"github.com/gin-gonic/gin"
 )
 
 type handler struct {
@@ -21,9 +19,9 @@ func newHandler(svc service) handler {
 }
 
 func (h handler) create(ctx *gin.Context) {
-	var req CreateTemplateRequestPayload
+	var req CreateMediaPayload
 
-	if err := ctx.ShouldBindJSON(&req); err != nil {
+	if err := ctx.ShouldBind(&req); err != nil {
 		myErr := response.ErrorBadRequest
 		infragin.NewResponse(
 			infragin.WithMessage(err.Error()),
@@ -33,7 +31,7 @@ func (h handler) create(ctx *gin.Context) {
 		return
 	}
 
-	if err := h.svc.createTemplate(ctx, req); err != nil {
+	if err := h.svc.createMedia(ctx, req); err != nil {
 		myErr, ok := response.ErrorMapping[err.Error()]
 		if !ok {
 			myErr = response.ErrorGeneral
@@ -48,13 +46,13 @@ func (h handler) create(ctx *gin.Context) {
 
 	infragin.NewResponse(
 		infragin.WithHttpCode(http.StatusCreated),
-		infragin.WithMessage("create template success"),
+		infragin.WithMessage("create Media success"),
 	).Send(ctx)
 
 }
 
 func (h handler) index(ctx *gin.Context) {
-	var req pkg.PaginationRequestPayload
+	var req GetMediaPayload
 
 	if err := ctx.ShouldBindQuery(&req); err != nil {
 		myErr := response.ErrorBadRequest
@@ -67,7 +65,7 @@ func (h handler) index(ctx *gin.Context) {
 		return
 	}
 
-	templates, pagination, err := h.svc.listTemplates(ctx, req)
+	templates, pagination, err := h.svc.listMedia(ctx, req)
 	if err != nil {
 		myErr, ok := response.ErrorMapping[err.Error()]
 		if !ok {
@@ -81,18 +79,16 @@ func (h handler) index(ctx *gin.Context) {
 		return
 	}
 
-	templateList := NewTemplateListResponseFromEntity(templates)
-
 	infragin.NewResponse(
 		infragin.WithHttpCode(http.StatusOK),
-		infragin.WithMessage("get list templates success"),
-		infragin.WithData(templateList),
+		infragin.WithMessage("get list media success"),
+		infragin.WithData(templates),
 		infragin.WithMeta(pagination),
 	).Send(ctx)
 }
 
-func (h handler) show(ctx *gin.Context) {
-	var req GetTemplateRequestPayload
+func (h handler) delete(ctx *gin.Context) {
+	var req DeleteMediaPayload
 
 	if err := ctx.ShouldBindUri(&req); err != nil {
 		myErr := response.ErrorBadRequest
@@ -102,11 +98,10 @@ func (h handler) show(ctx *gin.Context) {
 			infragin.WithHttpCode(http.StatusBadRequest),
 			infragin.WithMessage("invalid payload"),
 		).Send(ctx)
-
 		return
 	}
 
-	template, err := h.svc.TemplateDetail(ctx, req.ID)
+	err := h.svc.deleteMedia(ctx, req)
 	if err != nil {
 		myErr, ok := response.ErrorMapping[err.Error()]
 		if !ok {
@@ -120,24 +115,8 @@ func (h handler) show(ctx *gin.Context) {
 		return
 	}
 
-	templateDetail := NewTemplateDetailResponseFromEntity(template)
-
 	infragin.NewResponse(
-		infragin.WithHttpCode(http.StatusOK),
-		infragin.WithMessage("get template detail success"),
-		infragin.WithData(templateDetail),
+		infragin.WithHttpCode(http.StatusNoContent),
+		infragin.WithMessage("delete media success"),
 	).Send(ctx)
 }
-
-// func (h handler) Listen() {
-// 	ctx := context.Background()
-
-// 	h.broker.Subscribe(ctx, "updateTemplate", func(message broker.Message) {
-// 		fmt.Println("Event updateTemplate diterima:", message)
-
-// 	})
-
-// 	h.broker.Subscribe(ctx, "getTemplate", func(message broker.Message) {
-// 		fmt.Println("Event getTemplate diterima:", message)
-// 	})
-// }

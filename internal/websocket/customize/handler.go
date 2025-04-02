@@ -1,42 +1,27 @@
 package customize
 
 import (
-	pkg "golang-app/pkg/ws"
+	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
+	"github.com/jfraska/golang-app/infra/cache"
+	infragin "github.com/jfraska/golang-app/infra/gin"
+	"github.com/jfraska/golang-app/infra/response"
+	"github.com/jfraska/golang-app/pkg/customize"
 )
 
 type Handler struct {
-	hub *pkg.Hub
+	hub   *customize.Hub
+	cache *cache.CacheMemory
 }
 
-func NewHandler(h *pkg.Hub) *Handler {
+func NewHandler(hub *customize.Hub, cache *cache.CacheMemory) *Handler {
 	return &Handler{
-		hub: h,
+		hub:   hub,
+		cache: cache,
 	}
-}
-
-type CreateRoomReq struct {
-	ID   string `json:"id"`
-	Name string `json:"name"`
-}
-
-func (h *Handler) CreateRoom(c *gin.Context) {
-	var req CreateRoomReq
-	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
-	h.hub.Rooms[req.ID] = &pkg.Room{
-		ID:      req.ID,
-		Name:    req.Name,
-		Clients: make(map[string]*pkg.Client),
-	}
-
-	c.JSON(http.StatusOK, req)
 }
 
 var upgrader = websocket.Upgrader{
@@ -47,27 +32,48 @@ var upgrader = websocket.Upgrader{
 	},
 }
 
-func (h *Handler) JoinRoom(c *gin.Context) {
-	conn, err := upgrader.Upgrade(c.Writer, c.Request, nil)
+func (h Handler) JoinRoom(ctx *gin.Context) {
+	conn, err := upgrader.Upgrade(ctx.Writer, ctx.Request, nil)
+
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		myErr, ok := response.ErrorMapping[err.Error()]
+		if !ok {
+			myErr = response.ErrorGeneral
+		}
+
+		infragin.NewResponse(
+			infragin.WithMessage(err.Error()),
+			infragin.WithError(myErr),
+		).Send(ctx)
 		return
 	}
 
-	roomID := c.Param("roomId")
-	clientID := c.Query("userId")
-	username := c.Query("username")
+	roomID := ctx.Param("id")
+	clientID := ctx.Query("userId")
+	username := ctx.Query("username")
 
-	cl := &pkg.Client{
-		Conn:     conn,
-		Message:  make(chan *pkg.Message, 10),
-		ID:       clientID,
+	defer conn.Close()
+
+	body, err := h.cache.Get(ctx, roomID)
+	if err != nil {
+		body = cache.CacheStore{}
+
+		if err = h.cache.Set(ctx, roomID, body); err != nil {
+			fmt.Println("error set cache:", err)
+			return
+		}
+	}
+
+	m := &customize.Message{
+		Content:  body.Content,
 		RoomID:   roomID,
 		Username: username,
 	}
 
-	m := &pkg.Message{
-		Content:  "A new user has joined the room",
+	cl := &customize.Client{
+		Conn:     conn,
+		Message:  make(chan *customize.Message, 10),
+		ID:       clientID,
 		RoomID:   roomID,
 		Username: username,
 	}
@@ -75,48 +81,50 @@ func (h *Handler) JoinRoom(c *gin.Context) {
 	h.hub.Register <- cl
 	h.hub.Broadcast <- m
 
-	go cl.WriteMessage()
+	go cl.WriteMessage(h.cache)
 	cl.ReadMessage(h.hub)
 }
 
-type RoomRes struct {
-	ID   string `json:"id"`
-	Name string `json:"name"`
-}
-
-func (h *Handler) GetRooms(c *gin.Context) {
-	rooms := make([]RoomRes, 0)
+func (h Handler) GetRooms(ctx *gin.Context) {
+	rooms := make([]RoomResponse, 0)
 
 	for _, r := range h.hub.Rooms {
-		rooms = append(rooms, RoomRes{
+		rooms = append(rooms, RoomResponse{
 			ID:   r.ID,
 			Name: r.Name,
 		})
 	}
 
-	c.JSON(http.StatusOK, rooms)
+	infragin.NewResponse(
+		infragin.WithHttpCode(http.StatusOK),
+		infragin.WithMessage("get list rooms success"),
+		infragin.WithData(rooms),
+	).Send(ctx)
 }
 
-type ClientRes struct {
-	ID       string `json:"id"`
-	Username string `json:"username"`
-}
-
-func (h *Handler) GetClients(c *gin.Context) {
-	var clients []ClientRes
-	roomId := c.Param("roomId")
+func (h Handler) GetClients(ctx *gin.Context) {
+	var clients []ClientResponse
+	roomId := ctx.Param("roomId")
 
 	if _, ok := h.hub.Rooms[roomId]; !ok {
-		clients = make([]ClientRes, 0)
-		c.JSON(http.StatusOK, clients)
+		clients = make([]ClientResponse, 0)
+		infragin.NewResponse(
+			infragin.WithHttpCode(http.StatusOK),
+			infragin.WithMessage("get list clients success"),
+			infragin.WithData(clients),
+		).Send(ctx)
 	}
 
 	for _, c := range h.hub.Rooms[roomId].Clients {
-		clients = append(clients, ClientRes{
+		clients = append(clients, ClientResponse{
 			ID:       c.ID,
 			Username: c.Username,
 		})
 	}
 
-	c.JSON(http.StatusOK, clients)
+	infragin.NewResponse(
+		infragin.WithHttpCode(http.StatusOK),
+		infragin.WithMessage("get list clients success"),
+		infragin.WithData(clients),
+	).Send(ctx)
 }

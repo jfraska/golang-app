@@ -1,4 +1,10 @@
-package pkg
+package customize
+
+import (
+	"context"
+
+	"github.com/jfraska/golang-app/infra/cache"
+)
 
 type Room struct {
 	ID      string             `json:"id"`
@@ -22,7 +28,7 @@ func NewHub() *Hub {
 	}
 }
 
-func (h *Hub) Run() {
+func (h *Hub) Run(cache *cache.CacheMemory) {
 	for {
 		select {
 		case cl := <-h.Register:
@@ -31,21 +37,38 @@ func (h *Hub) Run() {
 
 				if _, ok := r.Clients[cl.ID]; !ok {
 					r.Clients[cl.ID] = cl
+				} else {
+					h.Broadcast <- &Message{
+						RoomID:   cl.RoomID,
+						Username: cl.Username,
+					}
 				}
+
+			} else {
+				h.Rooms[cl.RoomID] = &Room{
+					ID:      cl.RoomID,
+					Name:    cl.RoomID,
+					Clients: make(map[string]*Client),
+				}
+
+				r := h.Rooms[cl.RoomID]
+				r.Clients[cl.ID] = cl
 			}
 		case cl := <-h.Unregister:
 			if _, ok := h.Rooms[cl.RoomID]; ok {
 				if _, ok := h.Rooms[cl.RoomID].Clients[cl.ID]; ok {
-					if len(h.Rooms[cl.RoomID].Clients) != 0 {
-						h.Broadcast <- &Message{
-							Content:  "user left the chat",
-							RoomID:   cl.RoomID,
-							Username: cl.Username,
-						}
-					}
 
 					delete(h.Rooms[cl.RoomID].Clients, cl.ID)
 					close(cl.Message)
+
+					if len(h.Rooms[cl.RoomID].Clients) == 0 {
+						// delete in memory
+						delete(h.Rooms, cl.RoomID)
+
+						// delete in redis database
+						cache.Del(context.Background(), cl.RoomID)
+					}
+
 				}
 			}
 

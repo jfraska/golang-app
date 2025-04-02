@@ -2,8 +2,9 @@ package database
 
 import (
 	"fmt"
-	"golang-app/internal/config"
 	"log"
+
+	"github.com/jfraska/golang-app/internal/config"
 
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"

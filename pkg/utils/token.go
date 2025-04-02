@@ -1,17 +1,18 @@
-package pkg
+package utils
 
 import (
 	"fmt"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
+	"github.com/jfraska/golang-app/internal/config"
 )
 
-func GenerateToken(id string, role string, secret string, exp int) (tokenString string, err error) {
+func GenerateToken(id string, role string, secret string) (tokenString string, err error) {
 	claims := jwt.MapClaims{
 		"id":   id,
 		"role": role,
-		"exp":  time.Now().Add(time.Duration(exp) * time.Minute).Unix(),
+		"exp":  time.Now().Add(time.Duration(config.Cfg.Encryption.JWTExpires) * time.Hour).Unix(),
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)

@@ -1,4 +1,4 @@
-package template
+package invitation
 
 import (
 	"github.com/gin-gonic/gin"
@@ -11,12 +11,8 @@ func Init(router *gin.RouterGroup, db *mongo.Database) {
 	svc := newService(repo)
 	handler := newHandler(svc)
 
-	// go handler.Listen()
-
-	r := router.Group("template")
+	r := router.Group("invitation")
 	{
-		r.GET("/", handler.index)
-		r.GET("/:slug", handler.show)
 		r.POST("/", infragin.CheckAuth(), handler.create)
 	}
 

@@ -2,11 +2,11 @@ package user
 
 import (
 	"fmt"
-	infragin "golang-app/infra/gin"
-	"golang-app/infra/response"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	infragin "github.com/jfraska/golang-app/infra/gin"
+	"github.com/jfraska/golang-app/infra/response"
 )
 
 type handler struct {
@@ -85,6 +85,17 @@ func (h handler) login(ctx *gin.Context) {
 		}),
 		infragin.WithMessage("login success"),
 	).Send(ctx)
+}
+
+func (h handler) logout(ctx *gin.Context) {
+	publicID, _ := ctx.Get("PUBLIC_ID")
+
+	h.svc.logout(ctx, fmt.Sprintf("%v", publicID))
+
+	infragin.NewResponse(
+		infragin.WithHttpCode(http.StatusNoContent),
+		infragin.WithMessage("logout success"),
+	).Redirect(ctx)
 }
 
 func (h handler) oauth(ctx *gin.Context) {

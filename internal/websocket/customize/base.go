@@ -1,23 +1,23 @@
 package customize
 
 import (
-	pkg "golang-app/pkg/ws"
-
 	"github.com/gin-gonic/gin"
+	"github.com/jfraska/golang-app/infra/cache"
+	infragin "github.com/jfraska/golang-app/infra/gin"
+	"github.com/jfraska/golang-app/pkg/customize"
 )
 
-func Init(router *gin.RouterGroup) {
+func Init(router *gin.RouterGroup, cache *cache.CacheMemory) {
 
-	hub := pkg.NewHub()
-	handler := NewHandler(hub)
+	hub := customize.NewHub()
+	handler := NewHandler(hub, cache)
 
-	go hub.Run()
+	go hub.Run(cache)
 
 	r := router.Group("customize")
 	{
-		r.POST("/", handler.CreateRoom)
-		r.GET("/", handler.GetRooms)
-		r.GET("/:id/user", handler.GetClients)
+		r.GET("/", infragin.CheckAuth(), handler.GetRooms)
+		r.GET("/:id/user", infragin.CheckAuth(), handler.GetClients)
 
 		r.GET("/:id/ws", handler.JoinRoom)
 	}

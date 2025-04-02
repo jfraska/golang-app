@@ -1,9 +1,12 @@
-package pkg
+package customize
 
 import (
+	"context"
+	"encoding/json"
 	"log"
 
 	"github.com/gorilla/websocket"
+	"github.com/jfraska/golang-app/infra/cache"
 )
 
 type Client struct {
@@ -15,12 +18,12 @@ type Client struct {
 }
 
 type Message struct {
-	Content  string `json:"content"`
-	RoomID   string `json:"roomId"`
-	Username string `json:"username"`
+	Content  json.RawMessage `json:"content"`
+	RoomID   string          `json:"roomId"`
+	Username string          `json:"username"`
 }
 
-func (c *Client) WriteMessage() {
+func (c *Client) WriteMessage(ch *cache.CacheMemory) {
 	defer func() {
 		c.Conn.Close()
 	}()
@@ -31,6 +34,7 @@ func (c *Client) WriteMessage() {
 			return
 		}
 
+		ch.Set(context.Background(), message.RoomID, cache.CacheStore{Content: message.Content})
 		c.Conn.WriteJSON(message)
 	}
 }
@@ -51,7 +55,7 @@ func (c *Client) ReadMessage(hub *Hub) {
 		}
 
 		msg := &Message{
-			Content:  string(m),
+			Content:  m,
 			RoomID:   c.RoomID,
 			Username: c.Username,
 		}

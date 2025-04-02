@@ -2,14 +2,16 @@ package template
 
 import (
 	"context"
-	"golang-app/infra/response"
-	pkg "golang-app/pkg/utils"
+
+	"github.com/jfraska/golang-app/infra/response"
+	pkg "github.com/jfraska/golang-app/pkg/utils"
 )
 
 type Repository interface {
 	CreateTemplate(ctx context.Context, model Template) error
-	GetTemplateBySlug(ctx context.Context, slug string) (model Template, err error)
+	GetTemplateByID(ctx context.Context, ID string) (model Template, err error)
 	GetAllTemplates(ctx context.Context, model pkg.Pagination) ([]Template, pkg.Pagination, error)
+	UpdateTemplateByID(ctx context.Context, model Template) (err error)
 }
 
 type service struct {
@@ -52,8 +54,20 @@ func (s service) listTemplates(ctx context.Context, req pkg.PaginationRequestPay
 	return
 }
 
-func (s service) TemplateDetail(ctx context.Context, req GetTemplateRequestPayload) (model Template, err error) {
-	model, err = s.repo.GetTemplateBySlug(ctx, req.Slug)
+func (s service) TemplateDetail(ctx context.Context, ID string) (model Template, err error) {
+	model, err = s.repo.GetTemplateByID(ctx, ID)
+	if err != nil {
+		return
+	}
+	return
+}
+
+func (s service) UpdateTemplateByCustomize(ctx context.Context, model Template) (err error) {
+	return s.repo.UpdateTemplateByID(ctx, model)
+}
+
+func (s service) GetTemplate(ctx context.Context, ID string) (model Template, err error) {
+	model, err = s.repo.GetTemplateByID(ctx, ID)
 	if err != nil {
 		return
 	}

@@ -1,71 +1,63 @@
 version: "3.8"
 
 networks:
-  go-i-prod:
+  go-i:
 
 services:
-  nginx_backend_prod:
-    image: nginx:stable
-    container_name: ${APP_NAME}_nginx
-    restart: unless-stopped
-    ports:
-      - "8081:80"
-    links:
-      - go_backend_prod
-    volumes:
-      - ~/Program/go/deployments/docker/nginx/site-prod.conf:/etc/nginx/conf.d/default.conf:rw
-      - ~/Program/go/deployments/docker/logs/nginx:/var/logs/nginx:rw
-    depends_on:
-      - go_backend_prod
-    networks:
-      - go-i-prod
-  go_backend_prod:
-    image: ${APP_IMAGE_PROD}:${APP_IMAGE_PROD_TAG}
+  go_backend:
+    build: ./deployments
     container_name: ${APP_NAME}_go
     restart: unless-stopped
+    ports:
+      - "8000:8000"
     env_file: .env
     environment:
       DB_HOST: mongodb_backend_prod
       REDIS_HOST: redis_backend_prod
     depends_on:
-      - mongodb_backend_prod
-      - redis_backend_prod
+      - mongodb_backend
+      - redis_backend
     networks:
-      - go-i-prod
-  mongodb_backend_prod:
-    image: mongo:stable-alpine
+      - go-i
+  mongodb_backend:
+    image: mongo:latest
     container_name: ${APP_NAME}_mongodb
     restart: unless-stopped
+    ports:
+      - "27017:27017"
     volumes:
       - mongo_data:/data/db
     environment:
       MONGO_INITDB_ROOT_USERNAME: ${DB_USER}
       MONGO_INITDB_ROOT_PASSWORD: ${DB_PASS}
     networks:
-      - go-i-prod
-  redis_backend_prod:
-    image: redis:stable-alpine
+      - go-i
+  redis_backend:
+    image: redis:latest
     container_name: ${APP_NAME}_redis
     restart: unless-stopped
+    ports:
+      - "6379:6379"
     volumes:
       - redis_data:/data
     environment:
       REDIS_PASSWORD: ${REDIS_PASSWORD}  
     command: ["redis-server", "--appendonly", "no", "--maxmemory", "500mb", "--maxmemory-policy", "allkeys-lru"]
     networks:
-      - go-i-prod
-  minio_backend_prod:
-    image: docker.io/bitnami/minio:stable
+      - go-i
+  minio_backend:
+    image: docker.io/bitnami/minio:latest
     container_name: ${APP_NAME}_minio
     restart: unless-stopped
+    ports:
+      - "9000:9000"
     volumes:
       - 'minio_data:/data'
     environment:
-      MINIO_ROOT_USER: ${MINIO_USER}
-      MINIO_ROOT_PASSWORD: ${MINIO_PASS}
-      MINIO_DEFAULT_BUCKETS: ${MINIO_BUCKETS} 
+      MINIO_SERVER_ACCESS_KEY: ${MINIO_ACCESS_KEY}
+      MINIO_SERVER_SECRET_KEY: ${MINIO_SECRET_KEY} 
     networks:
-      - go-i-prod  
+      - go-i
   
 volumes:
   minio_data:

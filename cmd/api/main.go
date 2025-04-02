@@ -1,10 +1,12 @@
 package main
 
 import (
-	"golang-app/infra/database"
-	"golang-app/infra/session"
-	"golang-app/internal/config"
 	"log"
+
+	"github.com/jfraska/golang-app/infra/cache"
+	"github.com/jfraska/golang-app/infra/database"
+	"github.com/jfraska/golang-app/infra/session"
+	"github.com/jfraska/golang-app/internal/config"
 
 	"github.com/gin-gonic/gin"
 )
@@ -19,6 +21,12 @@ func main() {
 		panic(err)
 	}
 
+	// Storage Connect
+	sdb, err := database.ConnectMinio(config.Cfg.Minio)
+	if err != nil {
+		panic(err)
+	}
+
 	// Redis Connect
 	rdb, err := database.ConnectRedis(config.Cfg.Redis)
 	if err != nil {
@@ -28,10 +36,16 @@ func main() {
 	// Session initial
 	session.Store = session.NewSession(rdb)
 
+	// Broker initial
+	// broker := broker.NewBrokerMessage(rdb)
+
+	// Cache initial
+	cache := cache.NewCacheMemory(rdb)
+
 	// Gin Initial;
 	router := gin.Default()
 
-	initRoute(router, db)
+	initRoute(router, db, sdb, cache)
 
 	log.Printf("Server started at :%s", config.Cfg.Server.Port)
 	if err := router.Run(":" + config.Cfg.Server.Port); err != nil {

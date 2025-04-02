@@ -3,8 +3,9 @@ package user
 import (
 	"context"
 	"encoding/json"
-	"golang-app/infra/oauth"
-	"golang-app/infra/response"
+
+	"github.com/jfraska/golang-app/infra/oauth"
+	"github.com/jfraska/golang-app/infra/response"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -17,9 +18,11 @@ type repository struct {
 }
 
 func newRepository(db *mongo.Database) Repository {
-	return &repository{
+	repo := &repository{
 		collection: db.Collection("users"),
 	}
+	repo.createSlugIndex()
+	return repo
 }
 
 func (r repository) CreateUser(ctx context.Context, model User) (err error) {

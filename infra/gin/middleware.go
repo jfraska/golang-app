@@ -1,12 +1,13 @@
 package infragin
 
 import (
-	"golang-app/infra/response"
-	"golang-app/infra/session"
-	"golang-app/internal/config"
-	pkg "golang-app/pkg/utils"
 	"log"
 	"strings"
+
+	"github.com/jfraska/golang-app/infra/response"
+	"github.com/jfraska/golang-app/infra/session"
+	"github.com/jfraska/golang-app/internal/config"
+	pkg "github.com/jfraska/golang-app/pkg/utils"
 
 	"github.com/gin-gonic/gin"
 )
@@ -19,6 +20,7 @@ func CheckAuth() gin.HandlerFunc {
 				WithError(response.ErrorUnauthorized),
 			).Send(ctx)
 			ctx.Abort()
+			return
 		}
 
 		bearer := strings.Split(authorization, "Bearer ")
@@ -28,6 +30,7 @@ func CheckAuth() gin.HandlerFunc {
 				WithError(response.ErrorUnauthorized),
 			).Send(ctx)
 			ctx.Abort()
+			return
 		}
 
 		token := bearer[1]
@@ -39,6 +42,7 @@ func CheckAuth() gin.HandlerFunc {
 				WithError(response.ErrorUnauthorized),
 			).Send(ctx)
 			ctx.Abort()
+			return
 		}
 
 		_, err = session.Store.Get(ctx, publicId)
@@ -47,6 +51,7 @@ func CheckAuth() gin.HandlerFunc {
 				WithError(response.ErrorUnauthorized),
 			).Send(ctx)
 			ctx.Abort()
+			return
 		}
 
 		ctx.Set("ROLE", role)

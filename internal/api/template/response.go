@@ -9,8 +9,7 @@ import (
 type TemplateListResponse struct {
 	ID        primitive.ObjectID `json:"id,omitempty"`
 	Title     string             `json:"title"`
-	Slug      string             `json:"slug"`
-	Thumbnail string             `json:"thumbnail"`
+	Image     string             `json:"image"`
 	Price     int                `json:"price"`
 	Category  string             `json:"category"`
 	Discount  int                `json:"discount"`
@@ -19,18 +18,19 @@ type TemplateListResponse struct {
 }
 
 type TemplateDetailResponse struct {
-	ID        primitive.ObjectID       `json:"id,omitempty"`
-	Title     string                   `json:"title"`
-	Slug      string                   `json:"slug"`
-	Thumbnail string                   `json:"thumbnail"`
-	Price     int                      `json:"price"`
-	Category  string                   `json:"category"`
-	Discount  int                      `json:"discount"`
-	Content   []map[string]interface{} `json:"content"`
-	Color     []map[string]interface{} `json:"color"`
-	Music     string                   `json:"music"`
-	CreatedAt time.Time                `json:"created_at"`
-	UpdatedAt time.Time                `json:"updated_at"`
+	ID          primitive.ObjectID       `json:"id,omitempty"`
+	Title       string                   `json:"title"`
+	Description string                   `json:"description"`
+	Image       string                   `json:"image"`
+	Path        string                   `json:"path"`
+	Price       int                      `json:"price"`
+	Category    string                   `json:"category"`
+	Discount    int                      `json:"discount"`
+	Content     []map[string]interface{} `json:"content"`
+	Color       []map[string]interface{} `json:"color"`
+	Music       string                   `json:"music"`
+	CreatedAt   time.Time                `json:"created_at"`
+	UpdatedAt   time.Time                `json:"updated_at"`
 }
 
 func NewTemplateListResponseFromEntity(templates []Template) []TemplateListResponse {
@@ -40,12 +40,11 @@ func NewTemplateListResponseFromEntity(templates []Template) []TemplateListRespo
 
 		templateList = append(templateList, TemplateListResponse{
 			ID:        template.ID,
-			Title:     template.Title,
-			Slug:      template.Slug,
-			Thumbnail: template.Thumbnail,
-			Price:     template.Price,
-			Category:  template.Category,
-			Discount:  template.Discount,
+			Title:     template.Meta.Title,
+			Image:     template.Meta.Image,
+			Price:     template.Pricing.Price,
+			Category:  template.Pricing.Category,
+			Discount:  template.Pricing.Discount,
 			CreatedAt: template.CreatedAt,
 			UpdatedAt: template.UpdatedAt,
 		})
@@ -56,17 +55,18 @@ func NewTemplateListResponseFromEntity(templates []Template) []TemplateListRespo
 
 func NewTemplateDetailResponseFromEntity(template Template) TemplateDetailResponse {
 	return TemplateDetailResponse{
-		ID:        template.ID,
-		Title:     template.Title,
-		Slug:      template.Slug,
-		Thumbnail: template.Thumbnail,
-		Price:     template.Price,
-		Category:  template.Category,
-		Discount:  template.Discount,
-		Content:   template.Content,
-		Color:     template.Color,
-		Music:     template.Music,
-		CreatedAt: template.CreatedAt,
-		UpdatedAt: template.UpdatedAt,
+		ID:          template.ID,
+		Title:       template.Meta.Title,
+		Description: template.Meta.Description,
+		Image:       template.Meta.Image,
+		Path:        template.Path,
+		Price:       template.Pricing.Price,
+		Category:    template.Pricing.Category,
+		Discount:    template.Pricing.Discount,
+		Content:     template.Content,
+		Color:       template.Color,
+		Music:       template.Music,
+		CreatedAt:   template.CreatedAt,
+		UpdatedAt:   template.UpdatedAt,
 	}
 }

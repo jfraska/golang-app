@@ -15,6 +15,7 @@ type Config struct {
 	Encryption Encryption
 	Oauth      Oauth
 	Redis      Redis
+	Minio      Minio
 }
 
 type Server struct {
@@ -37,8 +38,15 @@ type Oauth struct {
 
 type Redis struct {
 	Host string
-	Pass string
 	Port string
+	Pass string
+}
+
+type Minio struct {
+	Host        string
+	Port        string
+	MinioAccess string
+	MinioSecret string
 }
 
 type OAuthProvider struct {
@@ -92,8 +100,14 @@ func Load() {
 		},
 		Redis: Redis{
 			Host: getEnv("REDIS_HOST", "127.0.0.1"),
-			Pass: getEnv("REDIS_PASSWORD", "redissecret"),
 			Port: getEnv("REDIS_PORT", "6379"),
+			Pass: getEnv("REDIS_PASSWORD", "redissecret"),
+		},
+		Minio: Minio{
+			Host:        getEnv("MINIO_HOST", "127.0.0.1"),
+			Port:        getEnv("MINIO_PORT", "9000"),
+			MinioAccess: getEnv("MINIO_ACCESS_KEY", "minioacces"),
+			MinioSecret: getEnv("MINIO_SECRET_KEY", "miniosecret"),
 		},
 		Encryption: Encryption{
 			Salt:       getEnvAsInt("SALT", 10),

@@ -1,7 +1,7 @@
 package oauth
 
 import (
-	"golang-app/internal/config"
+	"github.com/jfraska/golang-app/internal/config"
 
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"

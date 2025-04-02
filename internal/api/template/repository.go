@@ -2,11 +2,13 @@ package template
 
 import (
 	"context"
-	"golang-app/infra/response"
-	pkg "golang-app/pkg/utils"
 	"log"
 
+	"github.com/jfraska/golang-app/infra/response"
+	pkg "github.com/jfraska/golang-app/pkg/utils"
+
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
@@ -59,13 +61,33 @@ func (r repository) GetAllTemplates(ctx context.Context, model pkg.Pagination) (
 	return templates, model, nil
 }
 
-func (r repository) GetTemplateBySlug(ctx context.Context, slug string) (model Template, err error) {
+func (r repository) GetTemplateByID(ctx context.Context, ID string) (model Template, err error) {
+	objID, err := primitive.ObjectIDFromHex(ID)
+	if err != nil {
+		return
+	}
 
-	if err = r.collection.FindOne(ctx, bson.M{"slug": slug}).Decode(&model); err != nil {
+	if err = r.collection.FindOne(ctx, bson.M{"_id": objID}).Decode(&model); err != nil {
 		if err == mongo.ErrNoDocuments {
 			err = response.ErrNotFound
 			return
 		}
+		return
+	}
+
+	return
+}
+
+func (r repository) UpdateTemplateByID(ctx context.Context, model Template) (err error) {
+
+	res, err := r.collection.ReplaceOne(ctx, bson.M{"_id": model.ID}, model)
+	if err == mongo.ErrNoDocuments {
+		err = response.ErrNotFound
+		return
+	}
+
+	if res.MatchedCount == 0 {
+		err = response.ErrNotFound
 		return
 	}
 

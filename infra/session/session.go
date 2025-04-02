@@ -3,39 +3,40 @@ package session
 import (
 	"context"
 	"encoding/json"
-	"golang-app/internal/config"
 	"time"
+
+	"github.com/jfraska/golang-app/internal/config"
 
 	"github.com/google/uuid"
 	"github.com/redis/go-redis/v9"
 )
 
-var Store *sessionStore
+var Store *session
 
-type Session struct {
+type SessionStore struct {
 	Name   string    `json:"name"`
 	UserID uuid.UUID `json:"user_id"`
 }
 
-type sessionStore struct {
+type session struct {
 	client *redis.Client
 }
 
-func NewSession(client *redis.Client) *sessionStore {
-	return &sessionStore{client: client}
+func NewSession(client *redis.Client) *session {
+	return &session{client: client}
 }
 
-func (r *sessionStore) Set(ctx context.Context, id string, session Session) error {
+func (r *session) Set(ctx context.Context, id string, session SessionStore) error {
 	body, err := json.Marshal(session)
 	if err != nil {
 		return err
 	}
 
-	return r.client.Set(ctx, id, body, time.Duration(config.Cfg.Encryption.JWTExpires)*time.Minute).Err()
+	return r.client.Set(ctx, id, body, time.Duration(config.Cfg.Encryption.JWTExpires)*time.Hour).Err()
 }
 
-func (r *sessionStore) Get(ctx context.Context, id string) (Session, error) {
-	var session Session
+func (r *session) Get(ctx context.Context, id string) (SessionStore, error) {
+	var session SessionStore
 
 	body, err := r.client.Get(ctx, id).Bytes()
 	if err != nil {
@@ -49,6 +50,6 @@ func (r *sessionStore) Get(ctx context.Context, id string) (Session, error) {
 	return session, nil
 }
 
-func (r *sessionStore) Del(ctx context.Context, key string) error {
+func (r *session) Del(ctx context.Context, key string) error {
 	return r.client.Del(ctx, key).Err()
 }

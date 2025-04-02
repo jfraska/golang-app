@@ -2,13 +2,17 @@ package user
 
 import (
 	"context"
-	"golang-app/infra/oauth"
-	"golang-app/infra/response"
-	"golang-app/infra/session"
-	"golang-app/internal/config"
 	"log"
 
+	"github.com/jfraska/golang-app/infra/oauth"
+	"github.com/jfraska/golang-app/infra/response"
+	"github.com/jfraska/golang-app/internal/config"
+
+	"github.com/jfraska/golang-app/infra/session"
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 	"golang.org/x/oauth2"
 )
 
@@ -76,13 +80,18 @@ func (s service) login(ctx context.Context, req LoginRequestPayload) (token stri
 		return
 	}
 
-	session.Store.Set(ctx, model.PublicID.String(), session.Session{
+	session.Store.Set(ctx, model.PublicID.String(), session.SessionStore{
 		Name:   model.Name,
 		UserID: model.PublicID,
 	})
 
 	token, err = model.GenerateToken(config.Cfg.Encryption.JWTSecret)
 	return
+}
+
+func (s service) logout(ctx context.Context, ID string) {
+
+	session.Store.Del(ctx, ID)
 }
 
 func (s service) oauth(req OauthRequestPayload) (url string) {
@@ -119,12 +128,22 @@ func (s service) oauthCallback(ctx context.Context, req OauthCallbackRequestPayl
 		s.repo.UpdateUser(ctx, model.ID, user)
 	}
 
-	session.Store.Set(ctx, ouser.Id, session.Session{
+	session.Store.Set(ctx, ouser.Id, session.SessionStore{
 		Name:   user.Name,
 		UserID: user.PublicID,
 	})
 
 	token, err = user.GenerateToken(config.Cfg.Encryption.JWTSecret)
 
+	return
+}
+
+func (r repository) createSlugIndex() (err error) {
+	indexModel := mongo.IndexModel{
+		Keys:    bson.M{"public_id": 1},
+		Options: options.Index().SetUnique(true),
+	}
+
+	_, err = r.collection.Indexes().CreateOne(context.TODO(), indexModel)
 	return
 }

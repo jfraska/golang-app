@@ -1,13 +1,12 @@
 package user
 
 import (
-	"golang-app/infra/response"
-	"golang-app/internal/config"
-	pkg "golang-app/pkg/utils"
 	"strings"
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/jfraska/golang-app/infra/response"
+	pkg "github.com/jfraska/golang-app/pkg/utils"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"golang.org/x/crypto/bcrypt"
 	"golang.org/x/oauth2"
@@ -21,7 +20,7 @@ const (
 )
 
 type User struct {
-	ID            primitive.ObjectID `bson:"_id,omitempty" json:"id,omitempty"`
+	ID            primitive.ObjectID `bson:"_id" json:"_id"`
 	Name          string             `bson:"name" json:"name"`
 	Email         string             `bson:"email" json:"email"`
 	PublicID      uuid.UUID          `bson:"public_id" json:"public_id"`
@@ -149,5 +148,5 @@ func (a User) VerifyPasswordFromPlain(encrypted string) (err error) {
 }
 
 func (a User) GenerateToken(secret string) (tokenString string, err error) {
-	return pkg.GenerateToken(a.PublicID.String(), string(a.Role), secret, int(config.Cfg.Encryption.JWTExpires))
+	return pkg.GenerateToken(a.PublicID.String(), string(a.Role), secret)
 }
