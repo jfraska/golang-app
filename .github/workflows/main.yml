@@ -63,9 +63,9 @@ jobs:
             cd ~/Program/Dev/go
             git pull
             cd ~/Program/go/deployments
-            docker-compose -f docker-compose.dev.yml down
-            docker-compose -f docker-compose.dev.yml pull go_backend_dev
-            docker-compose -f docker-compose.dev.yml up -d
+            docker-compose -f deployments/docker-compose.dev.yml down
+            docker-compose -f deployments/docker-compose.dev.yml pull go_backend_dev
+            docker-compose -f deployments/docker-compose.dev.yml up -d
           "
 
   deploy-prod:
@@ -94,7 +94,7 @@ jobs:
             cd ~/Program/go
             git pull
             cd ~/Program/go/deployments
-            docker-compose -f docker-compose.prod.yml down
-            docker-compose -f docker-compose.prod.yml pull go_backend_prod
-            docker-compose -f docker-compose.prod.yml up -d
+            docker-compose -f deployments/docker-compose.prod.yml down
+            docker-compose -f deployments/docker-compose.prod.yml pull go_backend_prod
+            docker-compose -f deployments/docker-compose.prod.yml up -d
           "
