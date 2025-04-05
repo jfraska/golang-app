@@ -23,7 +23,8 @@ services:
     image: ${APP_IMAGE_PROD}:${APP_IMAGE_PROD_TAG}
     container_name: ${APP_NAME}_go
     restart: unless-stopped
-    env_file: ../.env
+    env_file:
+      - ../.env
     environment:
       DB_HOST: mongodb_backend_prod
       REDIS_HOST: redis_backend_prod
@@ -38,6 +39,8 @@ services:
     restart: unless-stopped
     volumes:
       - ~/Program/go/deployments/docker/mongodb:/data/db
+    env_file:
+      - ../.env  
     environment:
       MONGO_INITDB_ROOT_USERNAME: ${DB_USER}
       MONGO_INITDB_ROOT_PASSWORD: ${DB_PASS}
@@ -49,6 +52,8 @@ services:
     restart: unless-stopped
     volumes:
       - ~/Program/go/deployments/docker/redis:/data
+    env_file:
+      - ../.env
     environment:
       REDIS_PASSWORD: ${REDIS_PASSWORD}  
     command: ["redis-server", "--appendonly", "no", "--maxmemory", "500mb", "--maxmemory-policy", "allkeys-lru"]
@@ -63,6 +68,8 @@ services:
       - "9001:9001"
     volumes:
       -  ~/Program/go/deployments/docker/minio:/data
+    env_file:
+      - ../.env
     environment:
       MINIO_ROOT_USER: ${MINIO_USER}
       MINIO_ROOT_PASSWORD: ${MINIO_PASS}
