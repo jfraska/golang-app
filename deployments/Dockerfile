@@ -1,13 +1,13 @@
-FROM golang:alpine
-
-RUN apk update && apk add --no-cache git
-
+FROM golang:1.15 as builder
+ARG CGO_ENABLED=0
 WORKDIR /app
 
+COPY go.mod go.sum ../
+RUN go mod download
 COPY ../ .
 
-RUN go mod tidy
+RUN go build
 
-RUN go build -o binary
-
-ENTRYPOINT ["/app/binary"]
+FROM scratch
+COPY --from=builder /app/server /server
+ENTRYPOINT ["/server"]
