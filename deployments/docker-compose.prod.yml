@@ -38,7 +38,7 @@ services:
     container_name: ${APP_NAME}_mongodb
     restart: unless-stopped
     volumes:
-      - ~/Program/go/deployments/docker/mongodb:/data/db
+      - ~/Program/go/deployments/docker/mongodb:/data/db:rw
     environment:
       MONGO_INITDB_ROOT_USERNAME: ${DB_USER}
       MONGO_INITDB_ROOT_PASSWORD: ${DB_PASS}
@@ -49,7 +49,7 @@ services:
     container_name: ${APP_NAME}_redis
     restart: unless-stopped
     volumes:
-      - ~/Program/go/deployments/docker/redis:/data
+      - ~/Program/go/deployments/docker/redis:/data:rw
     environment:
       REDIS_PASSWORD: ${REDIS_PASSWORD}  
     command: ["redis-server", "--appendonly", "no", "--maxmemory", "500mb", "--maxmemory-policy", "allkeys-lru"]
@@ -63,7 +63,7 @@ services:
       - "9000:9000"
       - "9001:9001"
     volumes:
-      -  ~/Program/go/deployments/docker/minio:/bitnami/minio/data
+      -  ~/Program/go/deployments/docker/minio:/bitnami/minio/data:rw
     environment:
       MINIO_ROOT_USER: ${MINIO_USER}
       MINIO_ROOT_PASSWORD: ${MINIO_PASS}
