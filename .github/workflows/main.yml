@@ -62,7 +62,6 @@ jobs:
             echo ${{ secrets.CI_REGISTRY_PASSWORD }} | docker login ${{ env.CI_REGISTRY }} -u ${{ secrets.CI_REGISTRY_USER }} --password-stdin
             cd ~/Program/Dev/go
             git pull
-            cd ~/Program/go/deployments
             docker-compose -f deployments/docker-compose.dev.yml down
             docker-compose -f deployments/docker-compose.dev.yml pull go_backend_dev
             docker-compose -f deployments/docker-compose.dev.yml up -d
@@ -93,7 +92,6 @@ jobs:
             echo ${{ secrets.CI_REGISTRY_PASSWORD }} | docker login ${{ env.CI_REGISTRY }} -u ${{ secrets.CI_REGISTRY_USER }} --password-stdin
             cd ~/Program/go
             git pull
-            cd ~/Program/go/deployments
             docker-compose -f deployments/docker-compose.prod.yml down
             docker-compose -f deployments/docker-compose.prod.yml pull go_backend_prod
             docker-compose -f deployments/docker-compose.prod.yml up -d
