@@ -24,7 +24,7 @@ services:
     container_name: ${APP_NAME}_go
     restart: unless-stopped
     env_file:
-      - ../.env
+      - .env
     environment:
       DB_HOST: mongodb_backend_prod
       REDIS_HOST: redis_backend_prod
