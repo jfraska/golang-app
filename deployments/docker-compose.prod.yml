@@ -9,7 +9,7 @@ services:
     container_name: ${APP_NAME}_nginx
     restart: unless-stopped
     ports:
-      - "8081:80"
+      - "9091:80"
     links:
       - go_backend_prod
     volumes:
