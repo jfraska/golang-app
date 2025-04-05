@@ -2,9 +2,9 @@ FROM golang:1.15 as builder
 ARG CGO_ENABLED=0
 WORKDIR /app
 
-COPY go.mod go.sum ../
+COPY go.mod go.sum ./
 RUN go mod download
-COPY ../ .
+COPY . .
 
 RUN go build
 

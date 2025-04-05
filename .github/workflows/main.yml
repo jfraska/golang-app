@@ -22,7 +22,7 @@ jobs:
     - name: Build and Publish
       run: |
         cd deployments
-        docker build --pull -t '${{ env.CI_REGISTRY_IMAGE }}:latest-dev' .
+        docker build --pull -f deployments/Dockerfile -t '${{ env.CI_REGISTRY_IMAGE }}:latest-dev' .
         docker push ${{ env.CI_REGISTRY_IMAGE }} --all-tags
 
   build-prod:
@@ -36,7 +36,7 @@ jobs:
     - name: Build and Publish
       run: |
         cd deployments
-        docker build --pull -t '${{ env.CI_REGISTRY_IMAGE }}:latest-main' .
+        docker build --pull -f deployments/Dockerfile -t '${{ env.CI_REGISTRY_IMAGE }}:latest-main' .
         docker push ${{ env.CI_REGISTRY_IMAGE }} --all-tags
 
   deploy-dev:
