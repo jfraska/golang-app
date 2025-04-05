@@ -23,6 +23,8 @@ services:
     image: ${APP_IMAGE_PROD}:${APP_IMAGE_PROD_TAG}
     container_name: ${APP_NAME}_go
     restart: unless-stopped
+    volumes:
+      - ~/Program/go/.env:/app/.env:rw
     environment:
       DB_HOST: mongodb_backend_prod
       REDIS_HOST: redis_backend_prod
