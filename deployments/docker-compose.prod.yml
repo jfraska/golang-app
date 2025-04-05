@@ -63,10 +63,11 @@ services:
       - "9000:9000"
       - "9001:9001"
     volumes:
-      -  ~/Program/go/deployments/docker/minio:/data
+      -  ~/Program/go/deployments/docker/minio:/bitnami/minio/data
     environment:
       MINIO_ROOT_USER: ${MINIO_USER}
       MINIO_ROOT_PASSWORD: ${MINIO_PASS}
-      MINIO_DEFAULT_BUCKETS: ${MINIO_BUCKETS} 
+      MINIO_SERVER_URL: ${MINIO_PASS}
+    command: ["minio", "server", "/data", "--console-address", ":9001"]
     networks:
       - go-i-prod  
