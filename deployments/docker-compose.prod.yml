@@ -63,7 +63,7 @@ services:
       - "9000:9000"
       - "9001:9001"
     volumes:
-      -  ~/Program/go/deployments/docker/minio:/bitnami/minio/data:rw
+      -  ~/Program/go/deployments/docker/minio:/bitnami/minio:rw
     environment:
       MINIO_ROOT_USER: ${MINIO_USER}
       MINIO_ROOT_PASSWORD: ${MINIO_PASS}
