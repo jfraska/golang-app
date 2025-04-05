@@ -56,17 +56,20 @@ services:
     networks:
       - go-i-prod
   minio_backend_prod:
-    image: docker.io/bitnami/minio:latest
+    image: bitnami/minio:latest
     container_name: ${APP_NAME}_minio
     restart: unless-stopped
     ports:
       - "9000:9000"
       - "9001:9001"
     volumes:
-      -  ~/Program/go/deployments/docker/minio:/bitnami/minio:rw
+      -  minio_data:/bitnami/minio:rw
     environment:
       MINIO_ROOT_USER: ${MINIO_USER}
       MINIO_ROOT_PASSWORD: ${MINIO_PASS}
     command: ["minio", "server", "/data", "--console-address", ":9001"]
     networks:
       - go-i-prod  
+
+volumes:
+  minio_data:      
