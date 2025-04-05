@@ -30,12 +30,9 @@ func NewPaginationFromPaginationRequest(req PaginationRequestPayload) Pagination
 	}
 
 	return Pagination{
-		Limit:      req.Limit,
-		Page:       req.Page,
-		Sort:       req.Sort,
-		TotalPages: 0,
-		TotalRows:  0,
-		TotalSize:  0,
+		Limit: req.Limit,
+		Page:  req.Page,
+		Sort:  req.Sort,
 	}
 }
 

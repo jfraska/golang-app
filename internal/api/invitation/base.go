@@ -13,6 +13,7 @@ func Init(router *gin.RouterGroup, db *mongo.Database) {
 
 	r := router.Group("invitation")
 	{
+		r.GET("/", infragin.CheckAuth(), handler.index)
 		r.POST("/", infragin.CheckAuth(), handler.create)
 	}
 

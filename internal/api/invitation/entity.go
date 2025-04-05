@@ -14,16 +14,22 @@ type Invitation struct {
 	CreatedAt time.Time          `bson:"created_at,omitempty" json:"created_at,omitempty"`
 	UpdatedAt time.Time          `bson:"updated_at,omitempty" json:"updated_at,omitempty"`
 
-	TemplateID primitive.ObjectID `bson:"template_id" json:"template_id,omitempty"`
+	TemplateIDs []primitive.ObjectID `bson:"template_ids" json:"templateIds,omitempty"`
+	UserIDs     []primitive.ObjectID `bson:"user_ids" json:"userIds,omitempty"`
 }
 
 func NewInvitationFromCreateInvitationRequest(req CreateInvitationRequestPayload) Invitation {
+	newTemplateID, _ := primitive.ObjectIDFromHex(req.TemplateID)
+	newUserID, _ := primitive.ObjectIDFromHex(req.UserID)
+
 	return Invitation{
-		Name:      req.Name,
-		Subdomain: req.Subdomain,
-		Published: req.Published,
-		CreatedAt: time.Now(),
-		UpdatedAt: time.Now(),
+		Name:        req.Name,
+		Subdomain:   req.Subdomain,
+		Published:   req.Published,
+		TemplateIDs: []primitive.ObjectID{newTemplateID},
+		UserIDs:     []primitive.ObjectID{newUserID},
+		CreatedAt:   time.Now(),
+		UpdatedAt:   time.Now(),
 	}
 }
 

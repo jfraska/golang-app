@@ -41,14 +41,15 @@ func (s service) listTemplates(ctx context.Context, req pkg.PaginationRequestPay
 	templates, pagination, err = s.repo.GetAllTemplates(ctx, pagination)
 	if err != nil {
 		if err == response.ErrNotFound {
-			return []Template{}, pkg.Pagination{}, nil
+			return
 		}
 		return
 
 	}
 
 	if len(templates) == 0 {
-		return []Template{}, pkg.Pagination{}, nil
+		templates = []Template{}
+		return
 	}
 
 	return

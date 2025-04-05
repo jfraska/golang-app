@@ -98,6 +98,33 @@ func (h handler) logout(ctx *gin.Context) {
 	).Redirect(ctx)
 }
 
+func (h handler) session(ctx *gin.Context) {
+	publicID, _ := ctx.Get("PUBLIC_ID")
+
+	session, err := h.svc.session(ctx, fmt.Sprintf("%v", publicID))
+	if err != nil {
+		myErr, ok := response.ErrorMapping[err.Error()]
+		if !ok {
+			myErr = response.ErrorGeneral
+		}
+
+		infragin.NewResponse(
+			infragin.WithMessage(err.Error()),
+			infragin.WithError(myErr),
+		).Send(ctx)
+		return
+	}
+
+	
+
+
+	infragin.NewResponse(
+		infragin.WithHttpCode(http.StatusOK),
+		infragin.WithData(session),
+		infragin.WithMessage("session success"),
+	).Send(ctx)
+}
+
 func (h handler) oauth(ctx *gin.Context) {
 	var req OauthRequestPayload
 

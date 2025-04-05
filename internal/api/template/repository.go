@@ -5,7 +5,7 @@ import (
 	"log"
 
 	"github.com/jfraska/golang-app/infra/response"
-	pkg "github.com/jfraska/golang-app/pkg/utils"
+	"github.com/jfraska/golang-app/pkg/utils"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -39,7 +39,7 @@ func (r repository) CreateTemplate(ctx context.Context, model Template) (err err
 	return
 }
 
-func (r repository) GetAllTemplates(ctx context.Context, model pkg.Pagination) ([]Template, pkg.Pagination, error) {
+func (r repository) GetAllTemplates(ctx context.Context, model utils.Pagination) ([]Template, utils.Pagination, error) {
 	var templates []Template
 
 	cursor, err := r.collection.Find(ctx, bson.D{})

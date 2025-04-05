@@ -33,41 +33,39 @@ services:
     networks:
       - go-i-prod
   mongodb_backend_prod:
-    image: mongo:stable-alpine
+    image: mongo:latest
     container_name: ${APP_NAME}_mongodb
     restart: unless-stopped
     volumes:
-      - mongo_data:/data/db
+      - ~/Program/go/deployments/docker/mongodb:/data/db
     environment:
       MONGO_INITDB_ROOT_USERNAME: ${DB_USER}
       MONGO_INITDB_ROOT_PASSWORD: ${DB_PASS}
     networks:
       - go-i-prod
   redis_backend_prod:
-    image: redis:stable-alpine
+    image: redis:latest
     container_name: ${APP_NAME}_redis
     restart: unless-stopped
     volumes:
-      - redis_data:/data
+      - ~/Program/go/deployments/docker/redis:/data
     environment:
       REDIS_PASSWORD: ${REDIS_PASSWORD}  
     command: ["redis-server", "--appendonly", "no", "--maxmemory", "500mb", "--maxmemory-policy", "allkeys-lru"]
     networks:
       - go-i-prod
   minio_backend_prod:
-    image: docker.io/bitnami/minio:stable
+    image: docker.io/bitnami/minio:latest
     container_name: ${APP_NAME}_minio
     restart: unless-stopped
+    ports:
+      - "9000:9000"
+      - "9001:9001"
     volumes:
-      - 'minio_data:/data'
+      -  ~/Program/go/deployments/docker/minio:/data
     environment:
       MINIO_ROOT_USER: ${MINIO_USER}
       MINIO_ROOT_PASSWORD: ${MINIO_PASS}
       MINIO_DEFAULT_BUCKETS: ${MINIO_BUCKETS} 
     networks:
       - go-i-prod  
-  
-volumes:
-  minio_data:
-  redis_data:
-  mongo_data:

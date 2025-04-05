@@ -81,17 +81,32 @@ func (s service) login(ctx context.Context, req LoginRequestPayload) (token stri
 	}
 
 	session.Store.Set(ctx, model.PublicID.String(), session.SessionStore{
-		Name:   model.Name,
-		UserID: model.PublicID,
+		Name:  model.Name,
+		Email: user.Email,
+		Image: user.Image,
 	})
 
-	token, err = model.GenerateToken(config.Cfg.Encryption.JWTSecret)
+	token, err = model.GenerateToken()
 	return
 }
 
 func (s service) logout(ctx context.Context, ID string) {
-
 	session.Store.Del(ctx, ID)
+}
+
+func (s service) session(ctx context.Context, ID string) (model User, err error) {
+	auth, err := session.Store.Get(ctx, ID)
+	if err != nil {
+		return
+	}
+
+	model = User{
+		Name:  auth.Name,
+		Email: auth.Email,
+		Image: auth.Image,
+	}
+
+	return
 }
 
 func (s service) oauth(req OauthRequestPayload) (url string) {
@@ -128,12 +143,13 @@ func (s service) oauthCallback(ctx context.Context, req OauthCallbackRequestPayl
 		s.repo.UpdateUser(ctx, model.ID, user)
 	}
 
-	session.Store.Set(ctx, ouser.Id, session.SessionStore{
-		Name:   user.Name,
-		UserID: user.PublicID,
+	session.Store.Set(ctx, user.PublicID.String(), session.SessionStore{
+		Name:  user.Name,
+		Email: user.Email,
+		Image: user.Image,
 	})
 
-	token, err = user.GenerateToken(config.Cfg.Encryption.JWTSecret)
+	token, err = user.GenerateToken()
 
 	return
 }

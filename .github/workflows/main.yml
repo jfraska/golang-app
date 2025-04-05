@@ -8,7 +8,7 @@ on:
 
 env:
   CI_REGISTRY: https://index.docker.io/v1/
-  CI_REGISTRY_IMAGE: frab20/backend-zoejeton
+  CI_REGISTRY_IMAGE: frab20/go-zoejeton
 
 jobs:
   build-dev:
@@ -60,10 +60,11 @@ jobs:
             export APP_IMAGE_DEV=${{ env.CI_REGISTRY_IMAGE }}
             export APP_IMAGE_DEV_TAG=latest-dev
             echo ${{ secrets.CI_REGISTRY_PASSWORD }} | docker login ${{ env.CI_REGISTRY }} -u ${{ secrets.CI_REGISTRY_USER }} --password-stdin
-            cd ~/Program/Dev/backend
+            cd ~/Program/Dev/go
             git pull
+            cd ~/Program/go/deployments
             docker-compose -f docker-compose.dev.yml down
-            docker-compose -f docker-compose.dev.yml pull php_backend_dev
+            docker-compose -f docker-compose.dev.yml pull go_backend_dev
             docker-compose -f docker-compose.dev.yml up -d
           "
 
@@ -90,9 +91,10 @@ jobs:
             export APP_IMAGE_PROD=${{ env.CI_REGISTRY_IMAGE }}
             export APP_IMAGE_PROD_TAG=latest-main
             echo ${{ secrets.CI_REGISTRY_PASSWORD }} | docker login ${{ env.CI_REGISTRY }} -u ${{ secrets.CI_REGISTRY_USER }} --password-stdin
-            cd ~/Program/backend
+            cd ~/Program/go
             git pull
+            cd ~/Program/go/deployments
             docker-compose -f docker-compose.prod.yml down
-            docker-compose -f docker-compose.prod.yml pull php_backend_prod
+            docker-compose -f docker-compose.prod.yml pull go_backend_prod
             docker-compose -f docker-compose.prod.yml up -d
           "

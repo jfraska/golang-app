@@ -3,7 +3,7 @@ package media
 import (
 	"mime/multipart"
 
-	pkg "github.com/jfraska/golang-app/pkg/utils"
+	"github.com/jfraska/golang-app/pkg/utils"
 )
 
 type CreateMediaPayload struct {
@@ -13,7 +13,7 @@ type CreateMediaPayload struct {
 }
 
 type GetMediaPayload struct {
-	pkg.PaginationRequestPayload
+	utils.PaginationRequestPayload
 	InvitationID string `form:"invitation_id" binding:"required"`
 	Collection   string `form:"collection" binding:"required"`
 	FileType     string `form:"file_type"`

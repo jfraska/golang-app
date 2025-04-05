@@ -5,13 +5,13 @@ import (
 	"io"
 
 	"github.com/jfraska/golang-app/infra/response"
-	pkg "github.com/jfraska/golang-app/pkg/utils"
+	"github.com/jfraska/golang-app/pkg/utils"
 )
 
 type Repository interface {
 	CreateStorage(ctx context.Context, file []byte, model Media) (err error)
 	CreateMedia(ctx context.Context, model Media) (err error)
-	GetAllMediaByObjectName(ctx context.Context, model Media, pagination pkg.Pagination) ([]Media, pkg.Pagination, error)
+	GetAllMediaByObjectName(ctx context.Context, model Media, pagination utils.Pagination) ([]Media, utils.Pagination, error)
 	DeleteStorage(ctx context.Context, model Media) (err error)
 	DeleteMedia(ctx context.Context, model Media) (err error)
 	GetMediaByID(ctx context.Context, ID string) (model Media, err error)
@@ -53,8 +53,8 @@ func (s service) createMedia(ctx context.Context, req CreateMediaPayload) (err e
 
 }
 
-func (s service) listMedia(ctx context.Context, req GetMediaPayload) (media []Media, pagination pkg.Pagination, err error) {
-	pagination = pkg.NewPaginationFromPaginationRequest(req.PaginationRequestPayload)
+func (s service) listMedia(ctx context.Context, req GetMediaPayload) (media []Media, pagination utils.Pagination, err error) {
+	pagination = utils.NewPaginationFromPaginationRequest(req.PaginationRequestPayload)
 	model := NewMediaFromGetMediaRequest(req)
 
 	media, pagination, err = s.repo.GetAllMediaByObjectName(ctx, model, pagination)
@@ -67,6 +67,7 @@ func (s service) listMedia(ctx context.Context, req GetMediaPayload) (media []Me
 	}
 
 	if len(media) == 0 {
+		media = []Media{}
 		return
 	}
 

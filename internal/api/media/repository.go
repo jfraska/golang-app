@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"context"
 
-	pkg "github.com/jfraska/golang-app/pkg/utils"
+	"github.com/jfraska/golang-app/pkg/utils"
 	"github.com/minio/minio-go/v7"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -49,7 +49,8 @@ func (r repository) CreateMedia(ctx context.Context, model Media) (err error) {
 	return
 }
 
-func (r repository) GetAllMediaByObjectName(ctx context.Context, model Media, pagination pkg.Pagination) ([]Media, pkg.Pagination, error) {
+func (r repository) GetAllMediaByObjectName(ctx context.Context, model Media, pagination utils.Pagination) ([]Media, utils.Pagination, error) {
+	var media []Media
 
 	pipeline := mongo.Pipeline{
 		{{Key: "$match", Value: bson.D{{Key: "invitation_id", Value: model.InvitationID}}}},
@@ -99,8 +100,6 @@ func (r repository) GetAllMediaByObjectName(ctx context.Context, model Media, pa
 	}
 	defer cursor.Close(ctx)
 
-	var media []Media
-
 	for cursor.Next(ctx) {
 
 		var result struct {
@@ -113,7 +112,7 @@ func (r repository) GetAllMediaByObjectName(ctx context.Context, model Media, pa
 			return nil, pagination, err
 		}
 
-		pagination = pkg.NewPaginationFromModel(result.Metadata)
+		pagination = utils.NewPaginationFromModel(result.Metadata)
 
 		media = append(media, result.Data...)
 	}

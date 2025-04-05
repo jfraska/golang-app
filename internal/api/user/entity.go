@@ -6,6 +6,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/jfraska/golang-app/infra/response"
+	"github.com/jfraska/golang-app/internal/config"
 	pkg "github.com/jfraska/golang-app/pkg/utils"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"golang.org/x/crypto/bcrypt"
@@ -147,6 +148,6 @@ func (a User) VerifyPasswordFromPlain(encrypted string) (err error) {
 	return bcrypt.CompareHashAndPassword([]byte(encrypted), []byte(a.Password))
 }
 
-func (a User) GenerateToken(secret string) (tokenString string, err error) {
-	return pkg.GenerateToken(a.PublicID.String(), string(a.Role), secret)
+func (a User) GenerateToken() (tokenString string, err error) {
+	return pkg.GenerateToken(a.PublicID.String(), string(a.Role), config.Cfg.Encryption.JWTSecret)
 }
