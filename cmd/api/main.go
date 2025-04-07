@@ -3,9 +3,9 @@ package main
 import (
 	"log"
 
+	"github.com/gin-contrib/cors"
 	"github.com/jfraska/golang-app/infra/cache"
 	"github.com/jfraska/golang-app/infra/database"
-	infragin "github.com/jfraska/golang-app/infra/gin"
 	"github.com/jfraska/golang-app/infra/session"
 	"github.com/jfraska/golang-app/internal/config"
 
@@ -46,7 +46,12 @@ func main() {
 	// Gin Initial;
 	router := gin.Default()
 
-	router.Use(infragin.CORSMiddleware())
+	router.Use(cors.New(cors.Config{
+		AllowOrigins:     []string{"*"},
+		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE"},
+		AllowHeaders:     []string{"Content-Type", "access-control-allow-origin", "access-control-allow-headers"},
+		AllowCredentials: true,
+	}))
 
 	initRoute(router, db, sdb, cache)
 
