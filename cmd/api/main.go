@@ -46,7 +46,12 @@ func main() {
 	// Gin Initial;
 	router := gin.Default()
 
-	router.Use(cors.Default())
+	router.Use(cors.New(cors.Config{
+		AllowOrigins:     []string{"*"},
+		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE"},
+		AllowHeaders:     []string{"Content-Type", "access-control-allow-origin", "access-control-allow-headers"},
+		AllowCredentials: true,
+	}))
 
 	initRoute(router, db, sdb, cache)
 
