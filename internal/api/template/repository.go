@@ -45,7 +45,10 @@ func (r repository) GetAllTemplates(ctx context.Context, model utils.Pagination)
 	cursor, err := r.collection.Find(ctx, bson.D{})
 	if err != nil {
 		log.Fatal(err.Error())
+
+		return []Template{}, model, err
 	}
+
 	defer cursor.Close(ctx)
 
 	for cursor.Next(ctx) {
@@ -53,6 +56,8 @@ func (r repository) GetAllTemplates(ctx context.Context, model utils.Pagination)
 		err := cursor.Decode(&row)
 		if err != nil {
 			log.Fatal(err.Error())
+
+			return []Template{}, model, err
 		}
 
 		templates = append(templates, row)
@@ -61,13 +66,9 @@ func (r repository) GetAllTemplates(ctx context.Context, model utils.Pagination)
 	return templates, model, nil
 }
 
-func (r repository) GetTemplateByID(ctx context.Context, ID string) (model Template, err error) {
-	objID, err := primitive.ObjectIDFromHex(ID)
-	if err != nil {
-		return
-	}
+func (r repository) GetTemplateByID(ctx context.Context, ID primitive.ObjectID) (model Template, err error) {
 
-	if err = r.collection.FindOne(ctx, bson.M{"_id": objID}).Decode(&model); err != nil {
+	if err = r.collection.FindOne(ctx, bson.M{"_id": ID}).Decode(&model); err != nil {
 		if err == mongo.ErrNoDocuments {
 			err = response.ErrNotFound
 			return
@@ -88,6 +89,17 @@ func (r repository) UpdateTemplateByID(ctx context.Context, model Template) (err
 
 	if res.MatchedCount == 0 {
 		err = response.ErrNotFound
+		return
+	}
+
+	return
+}
+
+func (r repository) DeleteTemplate(ctx context.Context, ID primitive.ObjectID) (err error) {
+
+	_, err = r.collection.DeleteOne(ctx, bson.M{"_id": ID})
+
+	if err != nil {
 		return
 	}
 

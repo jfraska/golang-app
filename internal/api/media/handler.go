@@ -88,20 +88,9 @@ func (h handler) index(ctx *gin.Context) {
 }
 
 func (h handler) delete(ctx *gin.Context) {
-	var req DeleteMediaPayload
+	ID := ctx.Param("id")
 
-	if err := ctx.ShouldBindUri(&req); err != nil {
-		myErr := response.ErrorBadRequest
-		infragin.NewResponse(
-			infragin.WithMessage(err.Error()),
-			infragin.WithError(myErr),
-			infragin.WithHttpCode(http.StatusBadRequest),
-			infragin.WithMessage("invalid payload"),
-		).Send(ctx)
-		return
-	}
-
-	err := h.svc.deleteMedia(ctx, req)
+	err := h.svc.deleteMedia(ctx, ID)
 	if err != nil {
 		myErr, ok := response.ErrorMapping[err.Error()]
 		if !ok {

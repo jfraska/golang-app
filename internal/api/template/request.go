@@ -12,7 +12,3 @@ type CreateTemplateRequestPayload struct {
 	Color       []map[string]interface{} `json:"color" binding:"required"`
 	Music       string                   `json:"music" binding:"required"`
 }
-
-type GetTemplateRequestPayload struct {
-	ID string `uri:"id" binding:"required"`
-}

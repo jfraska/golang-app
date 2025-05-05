@@ -16,8 +16,9 @@ func Init(router *gin.RouterGroup, db *mongo.Database) {
 	r := router.Group("template")
 	{
 		r.GET("/", handler.index)
-		r.GET("/:slug", handler.show)
+		r.GET("/:id", handler.show)
 		r.POST("/", infragin.CheckAuth(), handler.create)
+		r.DELETE("/:id", infragin.CheckAuth(), handler.delete)
 	}
 
 }

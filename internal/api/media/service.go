@@ -6,6 +6,8 @@ import (
 
 	"github.com/jfraska/golang-app/infra/response"
 	"github.com/jfraska/golang-app/pkg/utils"
+	pkg "github.com/jfraska/golang-app/pkg/utils"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type Repository interface {
@@ -14,7 +16,7 @@ type Repository interface {
 	GetAllMediaByObjectName(ctx context.Context, model Media, pagination utils.Pagination) ([]Media, utils.Pagination, error)
 	DeleteStorage(ctx context.Context, model Media) (err error)
 	DeleteMedia(ctx context.Context, model Media) (err error)
-	GetMediaByID(ctx context.Context, ID string) (model Media, err error)
+	GetMediaByID(ctx context.Context, ID primitive.ObjectID) (model Media, err error)
 }
 
 type service struct {
@@ -74,9 +76,11 @@ func (s service) listMedia(ctx context.Context, req GetMediaPayload) (media []Me
 	return
 }
 
-func (s service) deleteMedia(ctx context.Context, req DeleteMediaPayload) (err error) {
+func (s service) deleteMedia(ctx context.Context, ID string) (err error) {
 
-	model, err := s.repo.GetMediaByID(ctx, req.ID)
+	newID, _ := pkg.ConvertObjectID(ID)
+
+	model, err := s.repo.GetMediaByID(ctx, newID)
 	if err != nil {
 		return
 	}

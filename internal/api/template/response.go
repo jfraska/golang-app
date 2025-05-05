@@ -34,7 +34,7 @@ type TemplateDetailResponse struct {
 }
 
 func NewTemplateListResponseFromEntity(templates []Template) []TemplateListResponse {
-	var templateList []TemplateListResponse
+	templateList := make([]TemplateListResponse, 0)
 
 	for _, template := range templates {
 

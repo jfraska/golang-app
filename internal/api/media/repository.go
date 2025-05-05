@@ -135,11 +135,9 @@ func (r repository) DeleteMedia(ctx context.Context, model Media) (err error) {
 	return
 }
 
-func (r repository) GetMediaByID(ctx context.Context, ID string) (model Media, err error) {
+func (r repository) GetMediaByID(ctx context.Context, ID primitive.ObjectID) (model Media, err error) {
 
-	newID, _ := primitive.ObjectIDFromHex(ID)
-
-	if err = r.collection.FindOne(ctx, bson.M{"_id": newID}).Decode(&model); err != nil {
+	if err = r.collection.FindOne(ctx, bson.M{"_id": ID}).Decode(&model); err != nil {
 		return
 	}
 

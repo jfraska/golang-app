@@ -92,21 +92,9 @@ func (h handler) index(ctx *gin.Context) {
 }
 
 func (h handler) show(ctx *gin.Context) {
-	var req GetTemplateRequestPayload
+	ID := ctx.Param("id")
 
-	if err := ctx.ShouldBindUri(&req); err != nil {
-		myErr := response.ErrorBadRequest
-		infragin.NewResponse(
-			infragin.WithMessage(err.Error()),
-			infragin.WithError(myErr),
-			infragin.WithHttpCode(http.StatusBadRequest),
-			infragin.WithMessage("invalid payload"),
-		).Send(ctx)
-
-		return
-	}
-
-	template, err := h.svc.TemplateDetail(ctx, req.ID)
+	template, err := h.svc.getTemplate(ctx, ID)
 	if err != nil {
 		myErr, ok := response.ErrorMapping[err.Error()]
 		if !ok {
@@ -126,6 +114,28 @@ func (h handler) show(ctx *gin.Context) {
 		infragin.WithHttpCode(http.StatusOK),
 		infragin.WithMessage("get template detail success"),
 		infragin.WithData(templateDetail),
+	).Send(ctx)
+}
+
+func (h handler) delete(ctx *gin.Context) {
+	ID := ctx.Param("id")
+
+	if err := h.svc.deleteTemplate(ctx, ID); err != nil {
+		myErr, ok := response.ErrorMapping[err.Error()]
+		if !ok {
+			myErr = response.ErrorGeneral
+		}
+
+		infragin.NewResponse(
+			infragin.WithMessage(err.Error()),
+			infragin.WithError(myErr),
+		).Send(ctx)
+		return
+	}
+
+	infragin.NewResponse(
+		infragin.WithHttpCode(http.StatusNoContent),
+		infragin.WithMessage("delete media success"),
 	).Send(ctx)
 }
 
